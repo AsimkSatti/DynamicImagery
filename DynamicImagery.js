@@ -6,14 +6,18 @@ var data;
 var offset=1;
 var imageHeight;
 var imageWidth;
+var preData=[];
+var reProcess=false;
+var image = document.getElementById("SourceImage");
+var canvas = document.getElementById('myCanvas');
+var context = canvas.getContext('2d');
 
 
 //Generates Image Once loaded
 function imageGenerator(){
 
-        var image = document.getElementById("SourceImage");
-        var canvas = document.getElementById('myCanvas');
-        var context = canvas.getContext('2d');
+      
+  
  
         var x = 0;
         var y = 0;
@@ -24,17 +28,22 @@ function imageGenerator(){
         imageWidth = image.width
         console.log(imageWidth);
 
-        canvas.addEventListener('webglcontextlost', handleContextLost, false);
+        // canvas.addEventListener('webglcontextlost', handleContextLost, false);
 
+ 
         context.drawImage(image, x, y);
 
+          
         var imageData = context.getImageData(x, y, image.width, image.height);
         data = imageData.data;
+
+     
 
         var counter=0
  
         // overwrite original image
         context.putImageData(imageData, x, y);
+       
      
      }
       
@@ -135,11 +144,15 @@ function init() {
     }
 
 function CloudPostProcessing(){
+  positions=[];
+  colors=[];
   particleCount = 4025;  //the height required pick how much you want
+   console.log(imageWidth);
          
         for (i = 0; i < particleCount; i+=2) {
                         //J is the width *2 as taken 2 steps
-             for(j =0; j<3250; j+=2){
+
+             for(j =0; j<(imageWidth*2); j+=2){
 
 
                 // X is the height and Y is the width
@@ -154,25 +167,24 @@ function CloudPostProcessing(){
                  color.setRGB( 1,0,0);
                  colors.push( color.r, color.g, color.b );
 
-
-
-                // geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-
+ 
                   };
 
             }
 
         geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
         geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-        geometry.setAttribute( 'rotation', new THREE.Float32BufferAttribute( rotations, 3 ) );
+        // geometry.setAttribute( 'rotation', new THREE.Float32BufferAttribute( rotations, 3 ) );
 
           
         var material = new THREE.PointsMaterial( { size: 15, vertexColors: true } );
         points = new THREE.Points( geometry, material );
-
         scene.add( points );
+        //-2000,-1500,-887
+         //-2000,-1500,-218
         points.rotation.z=300;
         Processed=true;
+ 
 
 }
 
@@ -202,6 +214,10 @@ function imageCasting(){
         //Increase offset for generation of image to be incremental
          offset=0;
 
+        if(reProcess){
+            reProcess=false;
+        }
+
 }
 
 
@@ -209,12 +225,16 @@ function update(){
     var time = Date.now() * 0.00005;
     var pixAtATime=100;
 
-    if(!Processed && (!imageWidth && !imageHeight)){
+    if(!Processed && imageWidth && imageHeight){
           CloudPostProcessing();
-}
+    }
     if(data &&timesEntered<10){
         imageCasting();
         timesEntered+=1;
+    }
+    if(reProcess){
+        console.log("casting Again");
+        imageCasting();
     }
 
     // camera.position.x += (mouseX - camera.position.x) * 0.05;
@@ -225,7 +245,7 @@ function update(){
         // particles.position.z-=(mouseX - camera.position.x) * 0.05;
 
     camera.lookAt(scene.position);
-    scene.children[1].position.z-=(mouseX - camera.position.x) * 0.05;
+    // scene.children[1].position.z-=(mouseX - camera.position.x) * 0.05;
  
     for (i = 0; i < scene.children.length; i++) {
              // scene.children[i].scale.z+=((Math.sin(time)));
@@ -247,7 +267,27 @@ function onDocumentMouseMove(e) {
         mouseX = e.clientX - windowHalfX;
         mouseY = e.clientY - windowHalfY;
     }
+function writer(){
+   
+   scene.remove(points);
+   
+    preData = data.slice(0,3);
+    context.clearRect(0, 0, imageWidth, imageHeight);
+     var img = document.getElementById("SourceImage");
+     img.src = "Images/arabianClouds.jpg";
+     img.addEventListener("load",function(){
+          
+          imageGenerator();
+          console.log("complete");
+          CloudPostProcessing();
+          reProcess=true;
 
+     })
+
+ 
+}
+
+document.body.addEventListener('click', writer); 
     // /*  Mobile 
 
 function onDocumentTouchStart(e) {
