@@ -4,6 +4,8 @@ import * as THREE from '/three.js-master/build/three.module.js';
 //Holds image data and offset variable
 var data;
 var offset=1;
+var imageHeight;
+var imageWidth;
 
 
 //Generates Image Once loaded
@@ -18,7 +20,9 @@ function imageGenerator(){
         canvas.width = image.width;
         canvas.height = image.height;
 
-
+        imageHeight = image.height;
+        imageWidth = image.width
+        console.log(imageWidth);
 
         canvas.addEventListener('webglcontextlost', handleContextLost, false);
 
@@ -67,8 +71,10 @@ var color = new THREE.Color();
 var points;
 var count=0;
 var rotations=[];
+var positions = [];
 var didRenderImage=false;
 var timesEntered=0;
+var Processed=false;
 
 
 init();
@@ -105,13 +111,32 @@ function init() {
         document.body.style.margin = 0;
         document.body.style.overflow = 'hidden';
 
+
+        var light = new THREE.DirectionalLight( 0xffffff, 1 );
+        scene.add(  light )
+        // light.target = points;
+        
+
  
 
-         var positions = [];
-                 
-        particleCount = 4025;  //the height required pick how much you want
+        renderer = new THREE.WebGLRenderer();  
+        renderer.setPixelRatio(window.devicePixelRatio); 
+        renderer.setSize(WIDTH, HEIGHT); 
+
+        container.appendChild(renderer.domElement); 
  
 
+        window.addEventListener('resize', onWindowResize, false);
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        document.addEventListener('touchstart', onDocumentTouchStart, false);
+        document.addEventListener('touchmove', onDocumentTouchMove, false);
+
+
+    }
+
+function CloudPostProcessing(){
+  particleCount = 4025;  //the height required pick how much you want
+         
         for (i = 0; i < particleCount; i+=2) {
                         //J is the width *2 as taken 2 steps
              for(j =0; j<3250; j+=2){
@@ -120,7 +145,7 @@ function init() {
                 // X is the height and Y is the width
                 var x = Math.random()*0+ i-2000;
                 var y =Math.random()*0+ j-1500;
-                var z =Math.random()*2000;
+                var z =Math.random()*2000-2000;
                 // var z=0;
 
 
@@ -147,30 +172,9 @@ function init() {
 
         scene.add( points );
         points.rotation.z=300;
+        Processed=true;
 
-
-
-        var light = new THREE.DirectionalLight( 0xffffff, 1 );
-        scene.add(  light )
-        light.target = points;
-        
-
- 
-
-        renderer = new THREE.WebGLRenderer();  
-        renderer.setPixelRatio(window.devicePixelRatio); 
-        renderer.setSize(WIDTH, HEIGHT); 
-
-        container.appendChild(renderer.domElement); 
- 
-
-        window.addEventListener('resize', onWindowResize, false);
-        document.addEventListener('mousemove', onDocumentMouseMove, false);
-        document.addEventListener('touchstart', onDocumentTouchStart, false);
-        document.addEventListener('touchmove', onDocumentTouchMove, false);
-
-    }
-
+}
 
 
 
@@ -205,7 +209,10 @@ function update(){
     var time = Date.now() * 0.00005;
     var pixAtATime=100;
 
-    if(data &&timesEntered<4){
+    if(!Processed && (!imageWidth && !imageHeight)){
+          CloudPostProcessing();
+}
+    if(data &&timesEntered<10){
         imageCasting();
         timesEntered+=1;
     }
@@ -213,13 +220,17 @@ function update(){
     // camera.position.x += (mouseX - camera.position.x) * 0.05;
     camera.position.x += 1.5*(mouseX - camera.position.x) * 0.05;
     camera.position.y += 1.5*(-mouseY - camera.position.y) * 0.05;
+     // camera.position.z +=  window.scrollY;
+     // console.log(window.scrollY);
         // particles.position.z-=(mouseX - camera.position.x) * 0.05;
 
     camera.lookAt(scene.position);
     scene.children[1].position.z-=(mouseX - camera.position.x) * 0.05;
  
     for (i = 0; i < scene.children.length; i++) {
-             scene.children[i].scale.z+=((Math.sin(time)));
+             // scene.children[i].scale.z+=((Math.sin(time)));
+             // console.log(Math.sin(time));
+             // scene.children[i].position.z+=1;
              var object = scene.children[i];    
         }
 
