@@ -25,8 +25,7 @@ function imageGenerator(){
         canvas.height = image.height;
 
         imageHeight = image.height;
-        imageWidth = image.width
-        console.log(imageWidth);
+        imageWidth = image.width;
 
         // canvas.addEventListener('webglcontextlost', handleContextLost, false);
 
@@ -156,8 +155,8 @@ function CloudPostProcessing(){
 
 
                 // X is the height and Y is the width
-                var x = Math.random()*0+ i-2000;
-                var y =Math.random()*0+ j-1500;
+                var x = Math.random()*5+ i-2000;
+                var y =Math.random()*5+ j-1500;
                 var z =Math.random()*2000-2000;
                 // var z=0;
 
@@ -187,7 +186,13 @@ function CloudPostProcessing(){
  
 
 }
+function DeterminingLuminance(R,G,B){
+ // as per relative luminance in colometeric spaces
+ // luminance =0.2126R+0.7152G+0.0722B.
 
+    var luminance = 0.2126*R + 0.7512*G + 0.0722*B;
+    return luminance;
+}
 
 
 function animate() {
@@ -205,12 +210,21 @@ function imageCasting(){
             
             colors[i+1+count]=(data[i+1+count +offset]/255);
             colors[i+2+count]=(data[i+2+count +offset]/255);
- 
+
+            var lum = DeterminingLuminance(data[i+count+offset],data[i+1+count+offset],data[i+2+count+offset]);
+            // console.log(lum);
+            if(lum>170){
+                positions[i+2]+=5;
+            }
+            if(lum<50){
+                positions[i+2]-=5;
+            }
             offset+=1;
    
          } 
 
           geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+          geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
         //Increase offset for generation of image to be incremental
          offset=0;
 
@@ -278,7 +292,6 @@ function writer(){
      img.addEventListener("load",function(){
           
           imageGenerator();
-          console.log("complete");
           CloudPostProcessing();
           reProcess=true;
 
