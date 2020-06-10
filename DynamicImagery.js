@@ -1,5 +1,4 @@
-import * as THREE from '/three.js-master/build/three.module.js';
-
+ 
 
 //Holds image data and offset variable
 var data;
@@ -11,14 +10,26 @@ var reProcess=false;
 var image = document.getElementById("SourceImage");
 var canvas = document.getElementById('myCanvas');
 var context = canvas.getContext('2d');
+var imageLoaded=false;
+var gradientColor;
 
+
+var imageFolder="Images/"
+var theImages=["arabianClouds.jpg","Desist.png","smallDesist.png","smallFutura.png","Mynation.png","smallCloak.png","smallGranada.png","smallSasukeSudan.png","smallCanopus.png","smallMidOcean.png","Skywalker.png","Crying.png"]
+var selected=[];
+ 
+for (var i = 0; i < theImages.length; i++) {
+    theImages[i]
+    var element = document.getElementById(("item"+(i+1)).toString());
+    element.style.backgroundImage= "url('"+imageFolder+theImages[i]+"')";
+    // element.onload = function(){
+    //  element.style.display = "inline-block";
+    // };
+}
 
 //Generates Image Once loaded
 function imageGenerator(){
-
-      
-  
- 
+        data=[];
         var x = 0;
         var y = 0;
         canvas.width = image.width;
@@ -42,6 +53,8 @@ function imageGenerator(){
  
         // overwrite original image
         context.putImageData(imageData, x, y);
+           scene.remove(points);
+ 
        
      
      }
@@ -84,6 +97,7 @@ var didRenderImage=false;
 var timesEntered=0;
 var Processed=false;
 
+ 
 
 init();
 animate();
@@ -91,6 +105,8 @@ animate();
  
 
 function init() {
+
+
 
         HEIGHT = window.innerHeight;
         WIDTH = window.innerWidth;
@@ -100,18 +116,18 @@ function init() {
         fieldOfView = 75;
         aspectRatio = WIDTH / HEIGHT;
         nearPlane = 1;
-        farPlane = 6000;
+        farPlane = 9000;
 
         cameraZ = 2750;
-        fogHex = 0xffffff; /* As black as your heart.   */
-        fogDensity = 0.0001; /* So not terribly dense?  */
+        fogHex = 0xfaf9f6; /* As black as your heart.   */
+        fogDensity = 0.00005; /* So not terribly dense?  */
 
         camera = new THREE.PerspectiveCamera(fieldOfView, aspectRatio, nearPlane, farPlane);
         camera.position.z = cameraZ;
 
 
         scene = new THREE.Scene();
-        // scene.background = new THREE.Color(0xffffff);
+        scene.background = new THREE.Color(0xf5f7fa);
         // scene.fog = new THREE.FogExp2(fogHex, fogDensity);
 
         container = document.createElement('div');
@@ -121,7 +137,7 @@ function init() {
 
 
         var light = new THREE.DirectionalLight( 0xffffff, 1 );
-        scene.add(  light )
+        scene.add(  light );
         // light.target = points;
         
 
@@ -141,23 +157,23 @@ function init() {
 
 
     }
+ 
 
 function CloudPostProcessing(){
   positions=[];
   colors=[];
-  particleCount = 4025;  //the height required pick how much you want
-   console.log(imageWidth);
+
          
-        for (i = 0; i < particleCount; i+=2) {
+        for (i = 0; i < imageHeight*2; i+=2) {
                         //J is the width *2 as taken 2 steps
 
              for(j =0; j<(imageWidth*2); j+=2){
 
 
                 // X is the height and Y is the width
-                var x = Math.random()*5+ i-2000;
-                var y =Math.random()*5+ j-1500;
-                var z =Math.random()*2000-2000;
+                var x = Math.random()*0+ i-1750;
+                var y =Math.random()*0+ j-1250;
+                var z =Math.random()*500-300;
                 // var z=0;
 
 
@@ -181,7 +197,8 @@ function CloudPostProcessing(){
         scene.add( points );
         //-2000,-1500,-887
          //-2000,-1500,-218
-        points.rotation.z=300;
+        points.rotation.z=300.02;
+    
         Processed=true;
  
 
@@ -191,7 +208,7 @@ function DeterminingLuminance(R,G,B){
  // luminance =0.2126R+0.7152G+0.0722B.
 
     var luminance = 0.2126*R + 0.7512*G + 0.0722*B;
-    return luminance;
+    return luminance/255;
 }
 
 
@@ -200,72 +217,143 @@ function animate() {
         render();
       
     }
-
+function setGradient(){
+    var r;
+    var g;
+    var b;
+    var inc=0;
+    var prefixes = ['-o-', '-ms-', '-moz-', '-webkit-'];
     
-function imageCasting(){
+    var sec = document.getElementById("NoneThree");
 
+    r = (colors[0]*255).toString();
+    g = (colors[1]*255).toString();
+    b = (colors[2]*255).toString();
+    for (var i = 0; i < prefixes.length; i++) {
+        sec.style.background='linear-gradient(to right, rgba('+r+','+g+','+b+',0.2), rgba(255,0,0,0))';
+        sec.style.background = prefixes[i]+'linear-gradient(270, rgba('+r+','+g+','+b+',0.4), rgba(255,0,0,0))';
+    }
+    
+     
+
+}   
+
+
+function imageCasting(datpo){
         for (var i = 0; i < 10000000; i+=3) {
             // BGR :: RGB
             colors[i+count]=(data[i+count +offset]/255);
             
             colors[i+1+count]=(data[i+1+count +offset]/255);
             colors[i+2+count]=(data[i+2+count +offset]/255);
-
+ 
             var lum = DeterminingLuminance(data[i+count+offset],data[i+1+count+offset],data[i+2+count+offset]);
-            // console.log(lum);
-            if(lum>170){
-                positions[i+2]+=5;
-            }
-            if(lum<50){
-                positions[i+2]-=5;
-            }
+            positions[i+2]+=20*lum+Math.random()*5;
+          
+            // if(lum>190){
+            //     positions[i+2]+=(Math.random()*20)+20;
+            // }
+            // if(lum<80){
+            //     positions[i+2]-=Math.random()*10+20;
+            // }
             offset+=1;
+            
    
          } 
+         // start=true;
 
           geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
           geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+          // geometry.attributes.color.needsUpdate = true;
         //Increase offset for generation of image to be incremental
          offset=0;
+
+         setGradient();
 
         if(reProcess){
             reProcess=false;
         }
+     
+        
+        
 
 }
-
+image.addEventListener("load",function(){
+        imageLoaded =true;
+        });
+ 
 
 function update(){
     var time = Date.now() * 0.00005;
     var pixAtATime=100;
+    
 
-    if(!Processed && imageWidth && imageHeight){
-          CloudPostProcessing();
+
+    if(!Processed && imageLoaded){
+     
+       CloudPostProcessing();
     }
-    if(data &&timesEntered<10){
+
+    if(imageLoaded && Processed&& timesEntered<5 ){
         imageCasting();
-        timesEntered+=1;
+        timesEntered++;
+        
     }
     if(reProcess){
         console.log("casting Again");
         imageCasting();
     }
-
+  
+      
     // camera.position.x += (mouseX - camera.position.x) * 0.05;
-    camera.position.x += 1.5*(mouseX - camera.position.x) * 0.05;
-    camera.position.y += 1.5*(-mouseY - camera.position.y) * 0.05;
+    camera.position.x += (4*(mouseX) - camera.position.x) * 0.05;
+    camera.position.y += (4*(-mouseY) - camera.position.y) * 0.05;
      // camera.position.z +=  window.scrollY;
      // console.log(window.scrollY);
-        // particles.position.z-=(mouseX - camera.position.x) * 0.05;
+      scene.children[0].position.z-=(mouseX - camera.position.x) * 0.05;
 
     camera.lookAt(scene.position);
-    // scene.children[1].position.z-=(mouseX - camera.position.x) * 0.05;
  
+      
+    // scene.children[1].position.z-=(mouseX - camera.position.x) * 0.05;
+    // console.log(Math.cos(time));
     for (i = 0; i < scene.children.length; i++) {
-             // scene.children[i].scale.z+=((Math.sin(time)));
+        if(scene.children[i] instanceof THREE.Points){
+               
+             var exp = scene.children[0].scale.z;
+
+             if(scene.children[i].scale.z+(Math.sin(3*time))<1){
+                
+                scene.children[i].scale.z=0.5
+             }
+             else{
+                       scene.children[i].scale.z+=(Math.sin(3*time));
+                        
+             }
+             if(scene.children[i].scale.z+(Math.sin(3*time))<1){
+                     scene.children[i].scale.y=1;
+
+             }
+             else{
+                    scene.children[i].scale.y+=0.05*(Math.sin(3*time));
+                    // scene.children[i].rotation.y+=(Math.sin(0.000000001*time));
+             }
+           if(scene.children[i].scale.x+(Math.sin(3*time))<1.5){
+                     scene.children[i].scale.x=1;
+
+             }
+             else{
+                    scene.children[i].scale.x+=0.05*(Math.sin(3*time));
+                    // scene.children[i].rotation.y+=(Math.sin(0.000000001*time));
+             }
+
+      
+      
+ 
              // console.log(Math.sin(time));
              // scene.children[i].position.z+=1;
-             var object = scene.children[i];    
+        }
+                
         }
 
 }
@@ -281,14 +369,23 @@ function onDocumentMouseMove(e) {
         mouseX = e.clientX - windowHalfX;
         mouseY = e.clientY - windowHalfY;
     }
-function writer(){
+
+var listItems = document.querySelectorAll("ul li");
+listItems.forEach(function(item) {
+  item.onclick = function(e) {
+     var ImgName = document.getElementById(item.id).style.backgroundImage.slice(5,-2);
+     Cloudwriter(ImgName);
+  }
+});
+
+ 
+function Cloudwriter(imgName){
    
    scene.remove(points);
    
-    preData = data.slice(0,3);
     context.clearRect(0, 0, imageWidth, imageHeight);
      var img = document.getElementById("SourceImage");
-     img.src = "Images/arabianClouds.jpg";
+     img.src = imgName;
      img.addEventListener("load",function(){
           
           imageGenerator();
@@ -300,7 +397,7 @@ function writer(){
  
 }
 
-document.body.addEventListener('click', writer); 
+// document.body.addEventListener('click', writer); 
     // /*  Mobile 
 
 function onDocumentTouchStart(e) {
@@ -332,6 +429,10 @@ function onWindowResize() {
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
+if (document.documentElement.clientWidth < 900) {
 
+    cameraZ=3600;
+}
+ 
+image.addEventListener('load', imageGenerator);
 
-window.addEventListener('load', imageGenerator);
