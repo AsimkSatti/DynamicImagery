@@ -1,5 +1,6 @@
 #DynamicImagery
-   Creating robust 3D Point Cloud of 2D images on the Web
+
+   Creating robust 3D Point Cloud of 2D images on the Web   
       - Completed Point Cloud reconstruction of an image
       - Point Cloud reassemblance supporting dynamic changes between images
 
