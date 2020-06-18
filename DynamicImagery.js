@@ -25,9 +25,9 @@ for (var i = 0; i < theImages.length; i++) {
  
 }
 var menu = document.getElementById("iconmenu");
-menu.onclick=function(){
-     console.log("Got ya");
-     var images = document.getElementById("imgHandler");
+
+function toggleMenu(){
+    var images = document.getElementById("imgHandler");
      if(images.style.display=="initial"){
          images.style.display="none";
           menu.src = "iconmenu.png";
@@ -37,6 +37,10 @@ menu.onclick=function(){
         images.style.display="initial";
            menu.src = "iconcross.png";
      }
+}
+menu.onclick=function(){
+     toggleMenu();
+ 
 }
  
 
@@ -270,7 +274,7 @@ function imageCasting(datpo){
             colors[i+2+count]=(data[i+2+count +offset]/255);
  
             var lum = DeterminingLuminance(data[i+count+offset],data[i+1+count+offset],data[i+2+count+offset]);
-            positions[i+2]+=20*lum+Math.random()*5;
+            positions[i+2]+=10*lum+Math.random()*5;
           
   // 
             offset+=1;
@@ -281,6 +285,9 @@ function imageCasting(datpo){
 
           geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
           geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+          points.scale.y=0.5;
+          points.scale.x=0.5;
+          points.scale.z=0.5;
           // geometry.attributes.color.needsUpdate = true;
         //Increase offset for generation of image to be incremental
          offset=0;
@@ -330,10 +337,9 @@ function update(){
       scene.children[0].position.z-=(mouseX - camera.position.x) * 0.05;
 
     camera.lookAt(scene.position);
+
  
-      
-    // scene.children[1].position.z-=(mouseX - camera.position.x) * 0.05;
-    // console.log(Math.cos(time));
+   
     if(animation){
     for (i = 0; i < scene.children.length; i++) {
         if(scene.children[i] instanceof THREE.Points){
@@ -408,6 +414,7 @@ function Cloudwriter(imgName){
           reProcess=true;
 
      })
+     toggleMenu();
 
  
 }
@@ -432,10 +439,10 @@ function stopAnimation(){
          for (var i = 0; i < (imageWidth*imageHeight)*3; i+=3){
             positions[i+2] = Math.random()*300-100;
             }
-        imageCasting();
+          imageCasting();
 
-        animation=true;
-        btn.innerHTML="Stop Fun";
+          animation=true;
+          btn.innerHTML="Stop Fun";
         
         
       }
