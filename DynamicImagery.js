@@ -15,18 +15,32 @@ var gradientColor;
 
 
 var imageFolder="Images/"
-var theImages=["arabianClouds.jpg","Desist.png","smallDesist.png","smallFutura.png","Mynation.png","smallCloak.png","smallGranada.png","smallSasukeSudan.png","smallCanopus.png","smallMidOcean.png","Skywalker.png","Crying.png"]
+var theImages=["arabianClouds.jpg","Desist.png","smallDesist.png","smallFutura.png","Mynation.png","smallCloak.png","smallGranada.png","smallSasukeSudan.png","smallCanopus.png","smallMidOcean.png","Skywalker.png","Crying.png","boatlife.png"]
 var selected=[];
  
 for (var i = 0; i < theImages.length; i++) {
     theImages[i]
     var element = document.getElementById(("item"+(i+1)).toString());
     element.style.backgroundImage= "url('"+imageFolder+theImages[i]+"')";
-    // element.onload = function(){
-    //  element.style.display = "inline-block";
-    // };
+ 
 }
+var menu = document.getElementById("iconmenu");
+menu.onclick=function(){
+     console.log("Got ya");
+     var images = document.getElementById("imgHandler");
+     if(images.style.display=="initial"){
+         images.style.display="none";
+          menu.src = "iconmenu.png";
 
+     }
+     else{
+        images.style.display="initial";
+           menu.src = "iconcross.png";
+     }
+}
+ 
+
+ 
 //Generates Image Once loaded
 function imageGenerator(){
         data=[];
@@ -117,8 +131,14 @@ function init() {
         aspectRatio = WIDTH / HEIGHT;
         nearPlane = 1;
         farPlane = 9000;
+        if( window.innerWidth<600){
+             cameraZ = 4500;
+        }
+        else{
+             cameraZ = 3000;
+        }
 
-        cameraZ = 2750;
+         
         fogHex = 0xfaf9f6; /* As black as your heart.   */
         fogDensity = 0.00005; /* So not terribly dense?  */
 
@@ -172,9 +192,9 @@ function CloudPostProcessing(){
 
                 // X is the height and Y is the width
                 var x = Math.random()*0+ i-1750;
-                var y =Math.random()*0+ j-1250;
-                var z =Math.random()*500-300;
-                // var z=0;
+                var y =Math.random()*0+ j-1650;
+                var z =Math.random()*300-100;
+                // var z=1;
 
 
 
@@ -240,7 +260,7 @@ function setGradient(){
 
 
 function imageCasting(datpo){
-        for (var i = 0; i < 10000000; i+=3) {
+        for (var i = 0; i < (imageWidth*imageHeight)*3; i+=3) {
             // BGR :: RGB
             colors[i+count]=(data[i+count +offset]/255);
             
@@ -250,12 +270,7 @@ function imageCasting(datpo){
             var lum = DeterminingLuminance(data[i+count+offset],data[i+1+count+offset],data[i+2+count+offset]);
             positions[i+2]+=20*lum+Math.random()*5;
           
-            // if(lum>190){
-            //     positions[i+2]+=(Math.random()*20)+20;
-            // }
-            // if(lum<80){
-            //     positions[i+2]-=Math.random()*10+20;
-            // }
+  // 
             offset+=1;
             
    
@@ -347,11 +362,7 @@ function update(){
                     // scene.children[i].rotation.y+=(Math.sin(0.000000001*time));
              }
 
-      
-      
- 
-             // console.log(Math.sin(time));
-             // scene.children[i].position.z+=1;
+       
         }
                 
         }
@@ -396,9 +407,7 @@ function Cloudwriter(imgName){
 
  
 }
-
-// document.body.addEventListener('click', writer); 
-    // /*  Mobile 
+ 
 
 function onDocumentTouchStart(e) {
 
@@ -435,4 +444,3 @@ if (document.documentElement.clientWidth < 900) {
 }
  
 image.addEventListener('load', imageGenerator);
-
