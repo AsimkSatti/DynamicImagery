@@ -110,6 +110,7 @@ var positions = [];
 var didRenderImage=false;
 var timesEntered=0;
 var Processed=false;
+var animation=true;
 
  
 
@@ -194,6 +195,7 @@ function CloudPostProcessing(){
                 var x = Math.random()*0+ i-1750;
                 var y =Math.random()*0+ j-1650;
                 var z =Math.random()*300-100;
+                // var z = 120;
                 // var z=1;
 
 
@@ -332,6 +334,7 @@ function update(){
       
     // scene.children[1].position.z-=(mouseX - camera.position.x) * 0.05;
     // console.log(Math.cos(time));
+    if(animation){
     for (i = 0; i < scene.children.length; i++) {
         if(scene.children[i] instanceof THREE.Points){
                
@@ -366,6 +369,7 @@ function update(){
         }
                 
         }
+    }
 
 }
 
@@ -406,6 +410,41 @@ function Cloudwriter(imgName){
      })
 
  
+}
+
+
+var btn =document.getElementById("button");
+function stopAnimation(){
+      if(animation){
+          for (var i = 0; i < (imageWidth*imageHeight)*3; i+=3){
+            positions[i+2]=-100;
+         
+            }
+        points.scale.x=1;
+        points.scale.z=0.5;
+        points.scale.y=1;
+        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+        animation=false;
+        console.log(geometry);
+        btn.innerHTML="Start Fun";
+        }
+      else{
+         for (var i = 0; i < (imageWidth*imageHeight)*3; i+=3){
+            positions[i+2] = Math.random()*300-100;
+            }
+        imageCasting();
+
+        animation=true;
+        btn.innerHTML="Stop Fun";
+        
+        
+      }
+
+
+}
+
+btn.onclick = function(){
+   stopAnimation();
 }
  
 

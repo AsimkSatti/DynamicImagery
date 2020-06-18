@@ -177,6 +177,27 @@
                 /*text-decoration-line: unset;*/
                 text-align: center;
             }
+            #button{
+                /*border-radius: 5px;*/
+                background-color:rgba(119, 203, 253,0.2);
+                color: rgba(30,35,30,1);
+                border-color: rgba(0,0,0,0);
+                font-weight: bold;
+                position: fixed;
+                margin-left: 80%;
+                margin-top: 30%;
+
+            }
+            #button:hover{
+                background-color: rgba(119, 203, 253,1);
+                transition: 0.1s;
+
+            }
+            #button:active{
+                background-color: white;
+                color: black;
+                border-color: rgba(0,0,0,0);
+            }
           @media only screen and (max-width: 600px) {
              #imgHandler{
                 display: none;
@@ -263,6 +284,7 @@
         <h2 id="title">Dynamic Imagery: </h2>
         <P id="details">A 3Dimensional Point Cloud Representation of 2d Images. </P>
      </div>
+     <button id="button" onclick="toggleAnimation()">Stop Fun</button>
      <footer>By: asim satti</footer>
  
 </body> 
