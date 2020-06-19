@@ -1,4 +1,40 @@
+// Projects images to their html
+
+var imageFolder="Images/"
+var theImages=["arabianClouds.jpg","Desist.png","smallDesist.png","smallFutura.png","Mynation.png","smallCloak.png","smallGranada.png","smallSasukeSudan.png","smallCanopus.png","smallMidOcean.png","Skywalker.png","Crying.png","boatlife.png"]
+var selected=[];
  
+for (var i = 0; i < theImages.length; i++) {
+    theImages[i]
+    var element = document.getElementById(("item"+(i+1)).toString());
+    element.style.backgroundImage= "url('"+imageFolder+theImages[i]+"')";
+ 
+}
+
+
+
+//Sets the Menu button
+
+var menu = document.getElementById("iconmenu");
+function toggleMenu(){
+    var images = document.getElementById("imgHandler");
+     if(images.style.display=="initial"){
+         images.style.display="none";
+          menu.src = "Images/iconmenu.png";
+
+     }
+     else{
+        images.style.display="initial";
+         menu.src = "Images/iconcross.png";
+     }
+}
+menu.onclick=function(){
+     toggleMenu();
+ 
+}
+ 
+
+
 
 //Holds image data and offset variable
 var data;
@@ -14,38 +50,9 @@ var imageLoaded=false;
 var gradientColor;
 
 
-var imageFolder="Images/"
-var theImages=["arabianClouds.jpg","Desist.png","smallDesist.png","smallFutura.png","Mynation.png","smallCloak.png","smallGranada.png","smallSasukeSudan.png","smallCanopus.png","smallMidOcean.png","Skywalker.png","Crying.png","boatlife.png"]
-var selected=[];
- 
-for (var i = 0; i < theImages.length; i++) {
-    theImages[i]
-    var element = document.getElementById(("item"+(i+1)).toString());
-    element.style.backgroundImage= "url('"+imageFolder+theImages[i]+"')";
- 
-}
-var menu = document.getElementById("iconmenu");
-
-function toggleMenu(){
-    var images = document.getElementById("imgHandler");
-     if(images.style.display=="initial"){
-         images.style.display="none";
-          menu.src = "iconmenu.png";
-
-     }
-     else{
-        images.style.display="initial";
-           menu.src = "iconcross.png";
-     }
-}
-menu.onclick=function(){
-     toggleMenu();
- 
-}
- 
 
  
-//Generates Image Once loaded
+//Creates and sets image on canvas
 function imageGenerator(){
         data=[];
         var x = 0;
@@ -56,25 +63,16 @@ function imageGenerator(){
         imageHeight = image.height;
         imageWidth = image.width;
 
-        // canvas.addEventListener('webglcontextlost', handleContextLost, false);
-
- 
         context.drawImage(image, x, y);
 
-          
         var imageData = context.getImageData(x, y, image.width, image.height);
         data = imageData.data;
-
-     
-
         var counter=0
  
         // overwrite original image
         context.putImageData(imageData, x, y);
-           scene.remove(points);
+        scene.remove(points);
  
-       
-     
      }
       
 function handleContextLost(event) {
@@ -83,9 +81,10 @@ function handleContextLost(event) {
 }
 
 
-
+image.addEventListener("load",function(){
+        imageLoaded =true;
+        });
 //Global data and variables needed regarding point cloud
-
 
 var Cloud = [];
 var geometry = new THREE.BufferGeometry();
@@ -105,7 +104,6 @@ var container, HEIGHT,
 
 
 var colors = [];
-
 var color = new THREE.Color();
 var points;
 var count=0;
@@ -120,11 +118,11 @@ var animation=true;
 
 init();
 animate();
-
  
 
-function init() {
 
+//Creates the inital scene and viewing and browser format
+function init() {
 
 
         HEIGHT = window.innerHeight;
@@ -136,6 +134,7 @@ function init() {
         aspectRatio = WIDTH / HEIGHT;
         nearPlane = 1;
         farPlane = 9000;
+        //Camera poisiont for mobile
         if( window.innerWidth<600){
              cameraZ = 4500;
         }
@@ -153,7 +152,6 @@ function init() {
 
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0xf5f7fa);
-        // scene.fog = new THREE.FogExp2(fogHex, fogDensity);
 
         container = document.createElement('div');
         document.body.appendChild(container);
@@ -165,8 +163,6 @@ function init() {
         scene.add(  light );
         // light.target = points;
         
-
- 
 
         renderer = new THREE.WebGLRenderer();  
         renderer.setPixelRatio(window.devicePixelRatio); 
@@ -183,11 +179,10 @@ function init() {
 
     }
  
-
+//Creates the point cloud after image has processed
 function CloudPostProcessing(){
   positions=[];
   colors=[];
-
          
         for (i = 0; i < imageHeight*2; i+=2) {
                         //J is the width *2 as taken 2 steps
@@ -198,14 +193,12 @@ function CloudPostProcessing(){
                 // X is the height and Y is the width
                 var x = Math.random()*0+ i-1750;
                 var y =Math.random()*0+ j-1650;
-                var z =Math.random()*300-100;
+                var z =Math.random()*300-200;
                 // var z = 120;
                 // var z=1;
 
-
-
                  positions.push(x,y,z);
-                 color.setRGB( 1,0,0);
+                 color.setRGB( 0,0,0);
                  colors.push( color.r, color.g, color.b );
 
  
@@ -221,21 +214,13 @@ function CloudPostProcessing(){
         var material = new THREE.PointsMaterial( { size: 15, vertexColors: true } );
         points = new THREE.Points( geometry, material );
         scene.add( points );
-        //-2000,-1500,-887
-         //-2000,-1500,-218
+ 
         points.rotation.z=300.02;
-    
         Processed=true;
  
 
 }
-function DeterminingLuminance(R,G,B){
- // as per relative luminance in colometeric spaces
- // luminance =0.2126R+0.7152G+0.0722B.
-
-    var luminance = 0.2126*R + 0.7512*G + 0.0722*B;
-    return luminance/255;
-}
+ 
 
 
 function animate() {
@@ -243,6 +228,8 @@ function animate() {
         render();
       
     }
+
+//Dynamically sts gradient color based on the projected image
 function setGradient(){
     var r;
     var g;
@@ -259,12 +246,24 @@ function setGradient(){
         sec.style.background='linear-gradient(to right, rgba('+r+','+g+','+b+',0.2), rgba(255,0,0,0))';
         sec.style.background = prefixes[i]+'linear-gradient(270, rgba('+r+','+g+','+b+',0.4), rgba(255,0,0,0))';
     }
-    
-     
 
 }   
 
 
+
+//Detrming the luminance of a pixel
+function DeterminingLuminance(R,G,B){
+ // as per relative luminance in colometeric spaces
+ // luminance =0.2126R+0.7152G+0.0722B.
+
+    var luminance = 0.2126*R + 0.7512*G + 0.0722*B;
+    return luminance/255;
+}
+
+
+
+
+//Casting image data to the pointCloud
 function imageCasting(datpo){
         for (var i = 0; i < (imageWidth*imageHeight)*3; i+=3) {
             // BGR :: RGB
@@ -275,8 +274,7 @@ function imageCasting(datpo){
  
             var lum = DeterminingLuminance(data[i+count+offset],data[i+1+count+offset],data[i+2+count+offset]);
             positions[i+2]+=10*lum+Math.random()*5;
-          
-  // 
+           
             offset+=1;
             
    
@@ -302,40 +300,26 @@ function imageCasting(datpo){
         
 
 }
-image.addEventListener("load",function(){
-        imageLoaded =true;
-        });
  
+ var time;
 
 function update(){
-    var time = Date.now() * 0.00005;
+    time = Date.now() * 0.00005;
     var pixAtATime=100;
-    
-
-
-    if(!Processed && imageLoaded){
-     
-       CloudPostProcessing();
-    }
-
-    if(imageLoaded && Processed&& timesEntered<5 ){
-        imageCasting();
-        timesEntered++;
-        
-    }
+ 
     if(reProcess){
         console.log("casting Again");
         imageCasting();
     }
-  
+    if(timesEntered<100){
+        timesEntered+=1;
+    }
       
     // camera.position.x += (mouseX - camera.position.x) * 0.05;
     camera.position.x += (4*(mouseX) - camera.position.x) * 0.05;
     camera.position.y += (4*(-mouseY) - camera.position.y) * 0.05;
-     // camera.position.z +=  window.scrollY;
-     // console.log(window.scrollY);
-      scene.children[0].position.z-=(mouseX - camera.position.x) * 0.05;
-
+ 
+    scene.children[0].position.z-=(mouseX - camera.position.x) * 0.05;
     camera.lookAt(scene.position);
 
  
@@ -377,6 +361,7 @@ function update(){
         }
     }
 
+
 }
 
 
@@ -391,19 +376,25 @@ function onDocumentMouseMove(e) {
         mouseY = e.clientY - windowHalfY;
     }
 
-var listItems = document.querySelectorAll("ul li");
-listItems.forEach(function(item) {
-  item.onclick = function(e) {
+//returieves the selected images fullname
+function getimgName(item){
+    console.log(item);
      var ImgName = document.getElementById(item.id).style.backgroundImage.slice(5,-2);
      Cloudwriter(ImgName);
+}
+
+//Goes through images and finds grabs image that was clicked
+var listItems = document.querySelectorAll("ul li");
+listItems.forEach(function(item) {
+  item.onclick = function(e) { 
+     getimgName(item);
+    
   }
 });
 
- 
+ //Deletes and repopulates scene with new point cloud;
 function Cloudwriter(imgName){
-   
    scene.remove(points);
-   
     context.clearRect(0, 0, imageWidth, imageHeight);
      var img = document.getElementById("SourceImage");
      img.src = imgName;
@@ -420,22 +411,31 @@ function Cloudwriter(imgName){
 }
 
 
+//Toggle animation and resetting of data point
 var btn =document.getElementById("button");
+
+btn.onclick = function(){
+   stopAnimation();
+}
+var tempTime;
+  
 function stopAnimation(){
       if(animation){
           for (var i = 0; i < (imageWidth*imageHeight)*3; i+=3){
             positions[i+2]=-100;
          
             }
+   
         points.scale.x=1;
         points.scale.z=0.5;
         points.scale.y=1;
+        tempTime=time;
         geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
         animation=false;
-        console.log(geometry);
         btn.innerHTML="Start Fun";
         }
       else{
+        // time=tempTime;
          for (var i = 0; i < (imageWidth*imageHeight)*3; i+=3){
             positions[i+2] = Math.random()*300-100;
             }
@@ -447,12 +447,8 @@ function stopAnimation(){
         
       }
 
-
 }
 
-btn.onclick = function(){
-   stopAnimation();
-}
  
 
 function onDocumentTouchStart(e) {
@@ -484,9 +480,18 @@ function onWindowResize() {
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
-if (document.documentElement.clientWidth < 900) {
+ 
 
-    cameraZ=3600;
+
+
+
+
+window.onload=function(){
+ 
+
+
+    getimgName(listItems[2]);
+ 
 }
  
 image.addEventListener('load', imageGenerator);
